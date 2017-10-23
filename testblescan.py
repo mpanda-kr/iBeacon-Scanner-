@@ -7,6 +7,8 @@ import sys
 import bluetooth._bluetooth as bluez
 
 dev_id = 0
+count = 0
+
 try:
 	sock = bluez.hci_open_dev(dev_id)
 	print "ble thread started"
@@ -20,7 +22,10 @@ blescan.hci_enable_le_scan(sock)
 
 while True:
 	returnedList = blescan.parse_events(sock, 10)
-	print "----------"
+	print "----------" 
+	count +=1
+	print count
+	print "----------" 
 	for beacon in returnedList:
 		print beacon
 

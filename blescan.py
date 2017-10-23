@@ -20,6 +20,8 @@ import sys
 import struct
 import bluetooth._bluetooth as bluez
 import sqlite3
+import time
+import datetime
 
 LE_META_EVENT = 0x3e
 LE_PUBLIC_ADDRESS=0x00
@@ -45,10 +47,6 @@ ADV_DIRECT_IND=0x01
 ADV_SCAN_IND=0x02
 ADV_NONCONN_IND=0x03
 ADV_SCAN_RSP=0x04
-
-con = sqlite3.connect("/var/www/html/database/smart_bus3.db")
-type(con)
-sqlite3.Connection
 
 def returnnumberpacket(pkt):
     myInteger = 0
@@ -117,6 +115,9 @@ def hci_le_set_scan_parameters(sock):
 
     
 def parse_events(sock, loop_count=100):
+    con = sqlite3.connect("/var/www/html/database/smart_bus3.db")
+    sqlite3.Connection
+
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
     # perform a device inquiry on bluetooth device #0
@@ -165,22 +166,25 @@ def parse_events(sock, loop_count=100):
                     	rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
                     	print "\tRSSI:", rssi
 		    # build the return string
-                    Adstring = packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
-		    Adstring += ","
-		    Adstring += returnstringpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6]) 
-		    Adstring += ","
-		    Adstring += "%i" % returnnumberpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4]) 
-		    Adstring += ","
-		    Adstring += "%i" % returnnumberpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2]) 
-		    Adstring += ","
-		    Adstring += "%i" % struct.unpack("b", pkt[report_pkt_offset -2])
-		    Adstring += ","
-		    Adstring += "%i" % struct.unpack("b", pkt[report_pkt_offset -1])
-
+		    
+                    mac_add = packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])		    
+		    b_uuid = returnstringpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6]) 		   
+		    b_major = "%i" % returnnumberpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4]) 		   
+		    b_mainor = "%i" % returnnumberpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2]) 		   
+		    b_rssi = "%i" % struct.unpack("b", pkt[report_pkt_offset -2])
+		    b_tx = "%i" % struct.unpack("b", pkt[report_pkt_offset -1])
+                    Adstring = str(datetime.datetime.now().date())+" "+str(datetime.datetime.now().time())+"\t"+mac_add +","+b_uuid+","+b_major+","+b_mainor+","+b_rssi+","+b_tx
 		    #print "\tAdstring=", Adstring
+		    
+                    cursor = con.cursor()
+                    cursor.execute("INSERT INTO bluetooth_scan_log ('createdate','createtime','mac_address','uuid','major','minor','rssi','tx_power') VALUES('"+str(datetime.datetime.now().date())+"','"+str(datetime.datetime.now().time())+"','"+mac_add +"','"+b_uuid+"',"+b_major+","+b_mainor+","+b_rssi+","+b_tx+")")
+                    con.commit()
+
  		    myFullList.append(Adstring)
+ 		    #time.sleep(1)
                 done = True
     sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
+    con.close()
     return myFullList
 
 
