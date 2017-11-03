@@ -28,4 +28,3 @@ while True:
 	print "----------" 
 	for beacon in returnedList:
 		print beacon
-
