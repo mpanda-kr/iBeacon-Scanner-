@@ -10,6 +10,7 @@ cursor = con.cursor()
 
 cursor.execute("SELECT config_value FROM gateway_config WHERE config_property='center_id'")
 rows = cursor.fetchall()
+
 center_id = (rows[0][0])
 
 URL = 'http://192.168.0.20:8080/gateway/center_enrollbeacon_select'
@@ -30,5 +31,8 @@ for i in range(0,len(enrollbeacon)):
     con.commit()
     
     print("=================================")
+
+cursor.execute("DELETE FROM bluetooth_scan_log;")
+con.commit()
     
 con.close()

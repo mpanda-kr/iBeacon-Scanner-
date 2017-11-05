@@ -177,7 +177,7 @@ def parse_events(sock, loop_count=100):
 		    #print "\tAdstring=", Adstring
 		    
                     cursor = con.cursor()
-                    cursor.execute("INSERT INTO bluetooth_scan_log ('createdate','createtime','mac_address','uuid','major','minor','rssi','tx_power') VALUES('"+str(datetime.datetime.now().date())+"','"+str(datetime.datetime.now().time())+"','"+mac_add +"','"+b_uuid+"',"+b_major+","+b_mainor+","+b_rssi+","+b_tx+")")
+                    cursor.execute("INSERT INTO bluetooth_scan_log ('createdate','mac_address','uuid','major','minor','rssi','tx_power') VALUES('"+str(datetime.datetime.now()) +"','"+mac_add +"','"+b_uuid+"',"+b_major+","+b_mainor+","+b_rssi+","+b_tx+")")
                     con.commit()
 
  		    myFullList.append(Adstring)

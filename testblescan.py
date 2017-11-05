@@ -3,6 +3,7 @@
 
 import blescan
 import sys
+import time
 
 import bluetooth._bluetooth as bluez
 
@@ -28,3 +29,4 @@ while True:
 	print "----------" 
 	for beacon in returnedList:
 		print beacon
+	time.sleep(2)
