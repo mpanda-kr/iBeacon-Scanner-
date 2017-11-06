@@ -48,6 +48,7 @@ ADV_SCAN_IND=0x02
 ADV_NONCONN_IND=0x03
 ADV_SCAN_RSP=0x04
 
+
 def returnnumberpacket(pkt):
     myInteger = 0
     multiple = 256
@@ -112,12 +113,27 @@ def hci_le_set_scan_parameters(sock):
     OWN_TYPE = SCAN_RANDOM
     SCAN_TYPE = 0x01
 
-
+def compare_enrll_scan(enroll_list,mac_add):
+    print enroll_list
+    print mac_add
     
 def parse_events(sock, loop_count=100):
+
+    # enroll_list =========
     con = sqlite3.connect("/var/www/html/database/smart_bus3.db")
     sqlite3.Connection
 
+    enroll_list = []
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM enroll_beacon WHERE 1")
+    enroll_rows = cursor.fetchall()
+
+    for i in range(0,len(enroll_rows)):
+        enroll_list.append(enroll_rows[i][1])
+    print enroll_list
+    # enroll_list =========
+
+ 
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
     # perform a device inquiry on bluetooth device #0
@@ -175,6 +191,18 @@ def parse_events(sock, loop_count=100):
 		    b_tx = "%i" % struct.unpack("b", pkt[report_pkt_offset -1])
                     Adstring = str(datetime.datetime.now().date())+" "+str(datetime.datetime.now().time())+"\t"+mac_add +","+b_uuid+","+b_major+","+b_mainor+","+b_rssi+","+b_tx
 		    #print "\tAdstring=", Adstring
+
+                    mac_list = []
+                    mac_list.append(mac_add)
+                    cmpare_mac = list(set(enroll_list).intersection(mac_list))
+                    ############need appand codeing ##################
+                    if cmpare_mac:
+                        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                        print(cmpare_mac)
+                        cursor = con.cursor()
+                        cursor.execute("INSERT INTO enroll_scan_beacon ('createtime','mac_address','uuid','major','minor','rssi','tx_power') VALUES('"+str(datetime.datetime.now()) +"','"+mac_add +"','"+b_uuid+"',"+b_major+","+b_mainor+","+b_rssi+","+b_tx+")")
+                        con.commit()
+                        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		    
                     cursor = con.cursor()
                     cursor.execute("INSERT INTO bluetooth_scan_log ('createdate','mac_address','uuid','major','minor','rssi','tx_power') VALUES('"+str(datetime.datetime.now()) +"','"+mac_add +"','"+b_uuid+"',"+b_major+","+b_mainor+","+b_rssi+","+b_tx+")")
