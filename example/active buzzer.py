@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
-Buzzer = 22    # pin11
+Buzzer = 36    # pin11
 
 def setup(pin):
 	global BuzzerPin
@@ -19,7 +19,7 @@ def off():
 def beep(x):
 	on()
 	time.sleep(x)
-	off()
+	#off()
 	time.sleep(x)
 
 def loop():

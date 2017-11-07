@@ -21,9 +21,6 @@ from __future__ import print_function
 import time
 import RPi.GPIO as GPIO
 import datetime
-import sqlite3
-import threading
-import ultra_scan_gateway_to_server
 
 # -----------------------
 # Define some functions
@@ -71,7 +68,7 @@ GPIO.setmode(GPIO.BCM)
 # Define GPIO to use on Pi
 GPIO_TRIGGER = 23
 GPIO_ECHO    = 24
-BuzzerPin = 12
+
 # Speed of sound in cm/s at temperature
 temperature = 20
 speedSound = 33100 + (0.6*temperature)
@@ -82,9 +79,6 @@ print("Speed of sound is",speedSound/100,"m/s at ",temperature,"deg")
 # Set pins as output and input
 GPIO.setup(GPIO_TRIGGER,GPIO.OUT)  # Trigger
 GPIO.setup(GPIO_ECHO,GPIO.IN)      # Echo
-
-GPIO.setup(BuzzerPin, GPIO.OUT)
-GPIO.output(BuzzerPin, GPIO.LOW)
 
 # Set trigger to False (Low)
 GPIO.output(GPIO_TRIGGER, False)
@@ -97,47 +91,17 @@ time.sleep(0.5)
 # GPIO cleanup function. This will also prevent
 # the user seeing lots of unnecessary error
 # messages.
-
-#sqlite3 config
-
-con = sqlite3.connect("/var/www/html/database/smart_bus3.db")
-sqlite3.Connection
-cursor = con.cursor()
-
-before_distance = 0
-now_distance = 0
-
-# BuzzerPin = 16
-# GPIO.setup(BuzzerPin, GPIO.OUT)
-# GPIO.output(BuzzerPin, GPIO.HIGH)
-  
 try:
   while True:
     distance = measure_average()
-    now = datetime.datetime.now()
     print("====================================")
     print("Distance : {0:5.1f}".format(distance))
     print("Time : " + str(datetime.datetime.now()))
     print("====================================")
-   
-    diff = before_distance - distance
-    before_distance = distance
+    time.sleep(1)
 
-    if diff > 60:
-      GPIO.output(BuzzerPin, GPIO.HIGH)
-      print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  ",diff )      
-      cursor.execute("insert into test_ultra_log (createtime,distance,diff) values ('"+str(now)+"',"+ str(distance)+","+str(diff)+")")
-      con.commit()
-      ultra_scan_gateway_to_server.ultra_scan()
-      GPIO.output(BuzzerPin, GPIO.LOW)
-
-      
-    else:
-      cursor.execute("insert into test_ultra_log (createtime,distance) values ('"+str(now)+"',"+ str(distance)+")")
-      con.commit()
-      
-    # time.sleep(0.3)
+except KeyboardInterrupt:
+  print("\nInterrupted!")
 
 finally:
   GPIO.cleanup()
-  con.close()

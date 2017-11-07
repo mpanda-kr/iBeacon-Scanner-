@@ -45,6 +45,8 @@ try:
 
         data+=']}'
 
+
+        
         for i in range(0,len(enroll_rows)):
             cursor = con.cursor()
             cursor.execute("UPDATE enroll_scan_beacon SET transmission = 1 WHERE createtime = '"+ enroll_rows[i][0] +"' AND mac_address  = '"+ enroll_rows[i][1] +"'")
@@ -52,6 +54,10 @@ try:
 
         url = "http://192.168.0.20:8080/gateway/enrollbeacon_insert" 
         res = requests.post(url, data=(data))
+        
+        print("=========")
+        print(data)
+        
         print("enroll beacon data gateway to server")
 
     else:

@@ -18,6 +18,7 @@ req = requests.post(URL, data={'center_id':center_id})
 enrollbeacon = req.json()
 
 cursor.execute("DELETE FROM enroll_beacon;")
+cursor.execute("DELETE FROM test_ultra_log;")
 
 print("=================================")
 
